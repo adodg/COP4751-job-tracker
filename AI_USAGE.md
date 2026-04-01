@@ -1,0 +1,7 @@
+## Summary
+The VSCode Cline extension was used with plan/act mode. I used plan mode to generate the logic behind what would be performed, then validated with the agent that it either looked appropriate, and proceeded with an act mode, or proceeded to debate over specifics if required if something didn't look right, or if it looked like the model may be starting to hallucinate at higher context windows. I have credits allocated to both OpenAI and Anthropic, with a preference towards using Sonnet 4.5 for general coding tasks, and Opus for more complex tasks (as Opus costs more, I try to limit it's usage). I prefer to keep the model temperature as low as possible, which gives me a more straightforward and focused response, rather than allowing it excess creativity.
+
+## Project Scaffholding
+
+Plan Mode: "Using schema.sql as a base, generate a plan for an appropriate, reusable mysql connector that can be used to target the various tables. a Flask app with CRUD endpoint support will be used to target these capabilities. It should support host/user/password/db env variables. The default host should be localhost, the default db should be job_tracker."
+Act Mode created the DB connector, repository files, and flask routes based on this prompt
