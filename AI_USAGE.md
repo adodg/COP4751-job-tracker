@@ -3,14 +3,17 @@ The VSCode Cline extension was used with plan/act mode. I used plan mode to gene
 
 ## Project Scaffholding
 
-Plan Mode: "Using schema.sql as a base, generate CRUD functions for an appropriate, reusable mysql connector that can be used to target the various tables. It should support host/user/password/db env variables. The default host should be localhost, the default db should be job_tracker."
-Act Mode created the DB connector, and DB repository files
+Plan Mode (Sonnet 4.5): "Using schema.sql as a base, generate CRUD functions for an appropriate, reusable mysql connector that can be used to target the various tables. It should support host/user/password/db env variables. The default host should be localhost, the default db should be job_tracker."
+Act Mode (Sonnet 4.5) created the DB connector, and DB repository files
 
-Plan Mode: "Using the existing database repos as a starting point, generate basic REST flask routes to handle basic CRUD operations"
-Act mode created the CRUD-specific REST routes to use with the db functionality, and run script for the app
+Plan Mode (Sonnet 4.5): "Using the existing database repos as a starting point, generate basic REST flask routes to handle basic CRUD operations"
+Act mode (Sonnet 4.5) created the CRUD-specific REST routes to use with the db functionality, and run script for the app
 
-Plan Mode: "Generate a config setup to use .env support for environment variables, with defaults for the db, and flask app"
-Act mode created the top level default config/.env example files.
+Plan Mode (Sonnet 4.5): "Generate a config setup to use .env support for environment variables, with defaults for the db, and flask app"
+Act mode (Sonnet 4.5) created the top level default config/.env example files.
 
 ## Project Improvements
 
+Improvement: With the backend now serving requests, I need to have the frontend app be able to be served by flask after it is built by vite
+Plan Mode (Sonnet 4.5): Update the flask app so that it serves the built react app from the frontend dist folder at the root / endpoint of the flask app, keeping in mind react router is in use, and SPA specific considerations
+Act mode (Sonnet 4.5) Updated the base flask app configuration so it would serve from job-tracker-frontend/dist on the / route, and be able to handle SPA specific routing 

@@ -1,8 +1,9 @@
 """Flask application factory."""
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from app.config import get_config
 from app.routes import companies_bp, jobs_bp, applications_bp, contacts_bp
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -22,7 +23,11 @@ def create_app(config_name=None):
     Returns:
         Configured Flask application instance
     """
-    app = Flask(__name__)
+    # Configure Flask to serve React build files
+    static_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'job-tracker-frontend', 'dist')
+    app = Flask(__name__, 
+                static_folder=static_folder,
+                static_url_path='')
     
     # Load configuration
     config_class = get_config()
@@ -37,22 +42,6 @@ def create_app(config_name=None):
     # Register error handlers
     register_error_handlers(app)
     
-    # Root endpoint
-    @app.route('/')
-    def index():
-        """Root endpoint with API information."""
-        return jsonify({
-            'name': 'Job Tracker API',
-            'version': '1.0.0',
-            'description': 'RESTful API for managing job applications',
-            'endpoints': {
-                'companies': '/api/companies',
-                'jobs': '/api/jobs',
-                'applications': '/api/applications',
-                'contacts': '/api/contacts'
-            }
-        }), 200
-    
     # Health check endpoint
     @app.route('/health')
     def health():
@@ -61,6 +50,37 @@ def create_app(config_name=None):
             'status': 'healthy',
             'database': 'connected'
         }), 200
+    
+    # Serve React app at root
+    @app.route('/')
+    def serve_react_app():
+        """Serve the React application."""
+        return send_from_directory(app.static_folder, 'index.html')
+    
+    # Catch-all route for React Router - handles client-side routing
+    @app.route('/<path:path>')
+    def catch_all(path):
+        """
+        Catch-all route to support React Router.
+        
+        - If the path is an API route, let Flask handle it (will 404 if not found)
+        - Otherwise, serve the React app's index.html for client-side routing
+        """
+        # Check if it's an API route
+        if path.startswith('api/'):
+            # Let Flask's 404 handler take over for missing API routes
+            return jsonify({
+                'success': False,
+                'error': 'API endpoint not found'
+            }), 404
+        
+        # Check if the path corresponds to a static file
+        file_path = os.path.join(app.static_folder, path)
+        if os.path.isfile(file_path):
+            return send_from_directory(app.static_folder, path)
+        
+        # Otherwise, serve index.html for React Router to handle
+        return send_from_directory(app.static_folder, 'index.html')
     
     logger.info("Flask application created successfully")
     
