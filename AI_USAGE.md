@@ -3,5 +3,14 @@ The VSCode Cline extension was used with plan/act mode. I used plan mode to gene
 
 ## Project Scaffholding
 
-Plan Mode: "Using schema.sql as a base, generate a plan for an appropriate, reusable mysql connector that can be used to target the various tables. a Flask app with CRUD endpoint support will be used to target these capabilities. It should support host/user/password/db env variables. The default host should be localhost, the default db should be job_tracker."
-Act Mode created the DB connector, repository files, and flask routes based on this prompt
+Plan Mode: "Using schema.sql as a base, generate CRUD functions for an appropriate, reusable mysql connector that can be used to target the various tables. It should support host/user/password/db env variables. The default host should be localhost, the default db should be job_tracker."
+Act Mode created the DB connector, and DB repository files
+
+Plan Mode: "Using the existing database repos as a starting point, generate basic REST flask routes to handle basic CRUD operations"
+Act mode created the CRUD-specific REST routes to use with the db functionality, and run script for the app
+
+Plan Mode: "Generate a config setup to use .env support for environment variables, with defaults for the db, and flask app"
+Act mode created the top level default config/.env example files.
+
+## Project Improvements
+

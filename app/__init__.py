@@ -62,7 +62,7 @@ def create_app(config_name=None):
             'database': 'connected'
         }), 200
     
-    logger.info(f"Flask application created successfully")
+    logger.info("Flask application created successfully")
     
     return app
 
