@@ -23,6 +23,7 @@ import {
 import { useState } from "react";
 import { useApplications } from "../hooks/useApplications";
 import type { Application } from "../hooks/useApplications";
+import { useJobs } from "../hooks/useJobs";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 
@@ -35,6 +36,9 @@ const Applications = () => {
     updateApplication,
     deleteApplication,
   } = useApplications();
+
+  // Fetch jobs once at the parent level
+  const { jobs } = useJobs();
 
   // Modal states
   const [
@@ -259,6 +263,7 @@ const Applications = () => {
         onClose={closeCreateModal}
         onSubmit={createApplication}
         mode="create"
+        jobs={jobs}
       />
 
       {/* Edit Modal */}
@@ -270,6 +275,7 @@ const Applications = () => {
         }
         application={selectedApplication}
         mode="edit"
+        jobs={jobs}
       />
 
       {/* Delete Confirmation Modal */}

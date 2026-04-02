@@ -25,6 +25,7 @@ import {
 import { useState } from "react";
 import { useContacts } from "../hooks/useContacts";
 import type { Contact } from "../hooks/useContacts";
+import { useCompanies } from "../hooks/useCompanies";
 import { ContactFormModal } from "../components/ContactFormModal";
 import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 
@@ -37,6 +38,9 @@ const Contacts = () => {
     updateContact,
     deleteContact,
   } = useContacts();
+
+  // Fetch companies once at the parent level
+  const { companies } = useCompanies();
 
   // Modal states
   const [
@@ -230,6 +234,7 @@ const Contacts = () => {
         onClose={closeCreateModal}
         onSubmit={createContact}
         mode="create"
+        companies={companies}
       />
 
       {/* Edit Modal */}
@@ -239,6 +244,7 @@ const Contacts = () => {
         onSubmit={(data) => updateContact(selectedContact!.contact_id, data)}
         contact={selectedContact}
         mode="edit"
+        companies={companies}
       />
 
       {/* Delete Confirmation Modal */}

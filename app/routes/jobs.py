@@ -216,3 +216,29 @@ def delete_job(job_id):
             'success': False,
             'error': 'An unexpected error occurred'
         }), 500
+
+
+@jobs_bp.route('/skills', methods=['GET'])
+def get_all_skills():
+    """Get all unique skills across all jobs."""
+    try:
+        skills = jobs_repository.get_all_skills()
+        
+        return jsonify({
+            'success': True,
+            'data': skills,
+            'count': len(skills)
+        }), 200
+        
+    except Error as e:
+        logger.error(f"Database error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Database error occurred'
+        }), 500
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'An unexpected error occurred'
+        }), 500

@@ -140,6 +140,23 @@ export const useJobs = () => {
     }
   };
 
+  const fetchAllSkills = useCallback(async (): Promise<string[]> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/jobs/skills`);
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.data;
+      } else {
+        console.error('Failed to fetch skills:', data.error);
+        return [];
+      }
+    } catch (err) {
+      console.error('Error fetching skills:', err);
+      return [];
+    }
+  }, []);
+
   return {
     jobs,
     loading,
@@ -148,5 +165,6 @@ export const useJobs = () => {
     updateJob,
     deleteJob,
     refreshJobs: fetchJobs,
+    fetchAllSkills,
   };
 };

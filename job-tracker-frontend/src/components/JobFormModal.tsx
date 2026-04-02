@@ -23,6 +23,7 @@ interface JobFormModalProps {
   onSubmit: (data: JobFormData) => Promise<boolean>;
   job?: Job | null;
   mode: 'create' | 'edit';
+  companies: Company[];
 }
 
 interface RequirementPair {
@@ -38,6 +39,7 @@ export const JobFormModal = ({
   onSubmit,
   job,
   mode,
+  companies,
 }: JobFormModalProps) => {
   const [formData, setFormData] = useState<Omit<JobFormData, 'requirements'>>({
     company_id: 0,
@@ -58,32 +60,8 @@ export const JobFormModal = ({
   // Additional custom requirements
   const [additionalRequirements, setAdditionalRequirements] = useState<RequirementPair[]>([]);
   
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  // Fetch companies for dropdown
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      setLoadingCompanies(true);
-      try {
-        const response = await fetch('http://localhost:5000/api/companies');
-        const data = await response.json();
-        if (data.success) {
-          setCompanies(data.data);
-        }
-      } catch (err) {
-        console.error('Error fetching companies:', err);
-      } finally {
-        setLoadingCompanies(false);
-      }
-    };
-
-    if (opened) {
-      fetchCompanies();
-    }
-  }, [opened]);
 
   // Reset form when modal opens/closes or job changes
   useEffect(() => {
@@ -100,6 +78,7 @@ export const JobFormModal = ({
         datePosted = `${year}-${month}-${day}`;
       }
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         company_id: job.company_id,
         job_title: job.job_title || '',
@@ -293,7 +272,6 @@ export const JobFormModal = ({
               label: company.company_name,
             }))}
             error={errors.company_id}
-            disabled={loadingCompanies}
             searchable
             required
             withAsterisk

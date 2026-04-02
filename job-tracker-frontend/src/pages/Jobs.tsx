@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import { useJobs } from "../hooks/useJobs";
 import type { Job } from "../hooks/useJobs";
+import { useCompanies } from "../hooks/useCompanies";
 import { JobFormModal } from "../components/JobFormModal";
 import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 
@@ -33,6 +34,9 @@ const Jobs = () => {
     updateJob,
     deleteJob,
   } = useJobs();
+
+  // Fetch companies once at the parent level
+  const { companies } = useCompanies();
 
   // Modal states
   const [
@@ -236,6 +240,7 @@ const Jobs = () => {
         onClose={closeCreateModal}
         onSubmit={createJob}
         mode="create"
+        companies={companies}
       />
 
       {/* Edit Modal */}
@@ -245,6 +250,7 @@ const Jobs = () => {
         onSubmit={(data) => updateJob(selectedJob!.job_id, data)}
         job={selectedJob}
         mode="edit"
+        companies={companies}
       />
 
       {/* Delete Confirmation Modal */}

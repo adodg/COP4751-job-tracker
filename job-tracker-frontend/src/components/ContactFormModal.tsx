@@ -1,7 +1,7 @@
 import { Modal, TextInput, Textarea, Button, Group, Stack, Select } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import type { Contact, ContactFormData } from '../hooks/useContacts';
-import { useCompanies } from '../hooks/useCompanies';
+import type { Company } from '../hooks/useCompanies';
 
 interface ContactFormModalProps {
   opened: boolean;
@@ -9,6 +9,7 @@ interface ContactFormModalProps {
   onSubmit: (data: ContactFormData) => Promise<boolean>;
   contact?: Contact | null;
   mode: 'create' | 'edit';
+  companies: Company[];
 }
 
 export const ContactFormModal = ({
@@ -17,8 +18,8 @@ export const ContactFormModal = ({
   onSubmit,
   contact,
   mode,
+  companies,
 }: ContactFormModalProps) => {
-  const { companies } = useCompanies();
   const [formData, setFormData] = useState<ContactFormData>({
     contact_name: '',
     company_id: null,

@@ -22,6 +22,7 @@ interface ApplicationFormModalProps {
   onSubmit: (data: ApplicationFormData) => Promise<boolean>;
   application?: Application | null;
   mode: 'create' | 'edit';
+  jobs: Job[];
 }
 
 interface InterviewDataPair {
@@ -44,6 +45,7 @@ export const ApplicationFormModal = ({
   onSubmit,
   application,
   mode,
+  jobs,
 }: ApplicationFormModalProps) => {
   const [formData, setFormData] = useState<Omit<ApplicationFormData, 'interview_data'>>({
     job_id: 0,
@@ -53,32 +55,8 @@ export const ApplicationFormModal = ({
     cover_letter_sent: false,
   });
   const [interviewData, setInterviewData] = useState<InterviewDataPair[]>([]);
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loadingJobs, setLoadingJobs] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  // Fetch jobs for dropdown
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoadingJobs(true);
-      try {
-        const response = await fetch('http://localhost:5000/api/jobs');
-        const data = await response.json();
-        if (data.success) {
-          setJobs(data.data);
-        }
-      } catch (err) {
-        console.error('Error fetching jobs:', err);
-      } finally {
-        setLoadingJobs(false);
-      }
-    };
-
-    if (opened) {
-      fetchJobs();
-    }
-  }, [opened]);
 
   // Reset form when modal opens/closes or application changes
   useEffect(() => {
@@ -95,6 +73,7 @@ export const ApplicationFormModal = ({
         applicationDate = `${year}-${month}-${day}`;
       }
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         job_id: application.job_id,
         application_date: applicationDate,
@@ -230,7 +209,6 @@ export const ApplicationFormModal = ({
             onChange={(value) => handleChange('job_id', value ? parseInt(value) : 0)}
             data={jobOptions}
             error={errors.job_id}
-            disabled={loadingJobs}
             searchable
             required
             withAsterisk

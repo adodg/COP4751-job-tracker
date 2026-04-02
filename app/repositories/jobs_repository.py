@@ -179,6 +179,31 @@ class JobsRepository(BaseRepository):
         except Error as e:
             logger.error(f"Error searching jobs by title: {e}")
             raise
+    
+    def get_all_skills(self) -> List[str]:
+        """
+        Get all unique skills across all jobs.
+        
+        Returns:
+            Sorted list of unique skills
+        """
+        try:
+            jobs = self.get_all()
+            skills_set = set()
+            
+            for job in jobs:
+                if job.get('requirements') and isinstance(job['requirements'], dict):
+                    job_skills = job['requirements'].get('skills', [])
+                    if isinstance(job_skills, list):
+                        for skill in job_skills:
+                            if isinstance(skill, str) and skill.strip():
+                                skills_set.add(skill.strip())
+            
+            return sorted(list(skills_set))
+                
+        except Error as e:
+            logger.error(f"Error getting all skills: {e}")
+            raise
 
 
 # Singleton instance
