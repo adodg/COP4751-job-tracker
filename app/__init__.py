@@ -35,7 +35,7 @@ def create_app(config_name=None):
     config_class = get_config()
     app.config.from_object(config_class)
     
-    # Register blueprints
+    # Register blueprints (these take priority over catch-all routes)
     app.register_blueprint(companies_bp)
     app.register_blueprint(jobs_bp)
     app.register_blueprint(applications_bp)
@@ -53,35 +53,33 @@ def create_app(config_name=None):
             'database': 'connected'
         }), 200
     
-    # Serve React app at root
-    @app.route('/')
-    def serve_react_app():
-        """Serve the React application."""
-        return send_from_directory(app.static_folder, 'index.html')
-    
-    # Catch-all route for React Router - handles client-side routing
+    # Serve React app - this must be defined AFTER all API routes
+    @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
-    def catch_all(path):
+    def serve_react_app(path):
         """
-        Catch-all route to support React Router.
+        Serve the React application and handle client-side routing.
         
-        - If the path is an API route, let Flask handle it (will 404 if not found)
-        - Otherwise, serve the React app's index.html for client-side routing
+        This catch-all route serves the React app for all non-API routes.
+        Flask blueprints are registered first, so API routes take priority.
         """
-        # Check if it's an API route
+        # API routes are already handled by blueprints, but double-check
         if path.startswith('api/'):
-            # Let Flask's 404 handler take over for missing API routes
+            # This shouldn't normally be reached due to blueprints,
+            # but provides a fallback for invalid API routes
             return jsonify({
                 'success': False,
                 'error': 'API endpoint not found'
             }), 404
         
-        # Check if the path corresponds to a static file
-        file_path = os.path.join(app.static_folder, path)
-        if os.path.isfile(file_path):
-            return send_from_directory(app.static_folder, path)
+        # Check if the path corresponds to a static file (JS, CSS, images, etc.)
+        if path:
+            file_path = os.path.join(app.static_folder, path)
+            if os.path.isfile(file_path):
+                return send_from_directory(app.static_folder, path)
         
-        # Otherwise, serve index.html for React Router to handle
+        # For all other routes (including React Router routes like /companies, /jobs, etc.),
+        # serve index.html and let React Router handle the routing
         return send_from_directory(app.static_folder, 'index.html')
     
     logger.info("Flask application created successfully")
@@ -94,11 +92,24 @@ def register_error_handlers(app):
     
     @app.errorhandler(404)
     def not_found(error):
-        """Handle 404 errors."""
-        return jsonify({
-            'success': False,
-            'error': 'Resource not found'
-        }), 404
+        """
+        Handle 404 errors.
+        
+        For API routes, return JSON error.
+        For all other routes, serve React app's index.html to support client-side routing.
+        """
+        from flask import request
+        
+        # Check if this is an API request
+        if request.path.startswith('/api/'):
+            return jsonify({
+                'success': False,
+                'error': 'Resource not found'
+            }), 404
+        
+        # For non-API routes, serve the React app's index.html
+        # This allows React Router to handle the routing
+        return send_from_directory(app.static_folder, 'index.html')
     
     @app.errorhandler(405)
     def method_not_allowed(error):
