@@ -31,8 +31,11 @@ class BaseRepository:
         """Convert JSON fields from dict/list to JSON string."""
         result = data.copy()
         for field in self.json_fields:
-            if field in result and result[field] is not None:
-                if isinstance(result[field], (dict, list)):
+            if field in result:
+                if result[field] is None:
+                    # Keep None as None (will be NULL in database)
+                    pass
+                elif isinstance(result[field], (dict, list)):
                     result[field] = json.dumps(result[field])
         return result
     

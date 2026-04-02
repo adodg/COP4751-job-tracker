@@ -9,7 +9,7 @@ import {
   ActionIcon,
   Text,
   Box,
-  Chip,
+  Badge,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useState, useEffect } from 'react';
@@ -159,29 +159,70 @@ export const JobFormModal = ({
     }
 
     // Build requirements object
-    const requirements: JobRequirements = {};
+    const hasAnyRequirements = skills.length > 0 || 
+                               yearsExperience !== undefined || 
+                               education.trim() !== '' || 
+                               additionalRequirements.some(pair => pair.key.trim() && pair.value.trim());
     
-    // Add structured fields if they have values
-    if (skills.length > 0) {
-      requirements.skills = skills;
-    }
-    if (yearsExperience !== undefined && yearsExperience !== null) {
-      requirements.years_experience = yearsExperience;
-    }
-    if (education.trim()) {
-      requirements.education = education.trim();
-    }
+    let requirements: JobRequirements | undefined = undefined;
     
-    // Add additional custom requirements
-    additionalRequirements.forEach((pair) => {
-      if (pair.key.trim() && pair.value.trim()) {
-        requirements[pair.key.trim()] = pair.value.trim();
+    if (mode === 'edit') {
+      // In edit mode, always send the full requirements structure to ensure proper clearing
+      if (hasAnyRequirements) {
+        requirements = {};
+        
+        // Always include skills (even if empty array) to allow clearing
+        requirements.skills = skills;
+        
+        // Include years_experience (undefined will clear it)
+        if (yearsExperience !== undefined) {
+          requirements.years_experience = yearsExperience;
+        }
+        
+        // Include education (undefined will clear it)
+        if (education.trim()) {
+          requirements.education = education.trim();
+        }
+        
+        // Add additional custom requirements
+        additionalRequirements.forEach((pair) => {
+          if (pair.key.trim() && pair.value.trim()) {
+            requirements![pair.key.trim()] = pair.value.trim();
+          }
+        });
+      } else {
+        // No requirements at all, send undefined to clear (which will be sent as null to backend)
+        requirements = undefined;
       }
-    });
+    } else {
+      // In create mode, only include fields with values
+      if (hasAnyRequirements) {
+        requirements = {};
+        
+        if (skills.length > 0) {
+          requirements.skills = skills;
+        }
+        
+        if (yearsExperience !== undefined) {
+          requirements.years_experience = yearsExperience;
+        }
+        
+        if (education.trim()) {
+          requirements.education = education.trim();
+        }
+        
+        // Add additional custom requirements
+        additionalRequirements.forEach((pair) => {
+          if (pair.key.trim() && pair.value.trim()) {
+            requirements![pair.key.trim()] = pair.value.trim();
+          }
+        });
+      }
+    }
 
     const submitData: JobFormData = {
       ...formData,
-      requirements: Object.keys(requirements).length > 0 ? requirements : undefined,
+      requirements,
     };
 
     setSubmitting(true);
@@ -355,23 +396,26 @@ export const JobFormModal = ({
               {skills.length > 0 && (
                 <Group gap="xs" mt="xs">
                   {skills.map((skill, index) => (
-                    <Chip
+                    <Badge
                       key={index}
-                      checked={false}
                       variant="filled"
                       color="blue"
+                      size="lg"
+                      pr={3}
+                      rightSection={
+                        <ActionIcon
+                          size="xs"
+                          color="blue"
+                          radius="xl"
+                          variant="transparent"
+                          onClick={() => removeSkill(skill)}
+                        >
+                          <IconX size={12} />
+                        </ActionIcon>
+                      }
                     >
                       {skill}
-                      <ActionIcon
-                        size="xs"
-                        variant="transparent"
-                        color="white"
-                        onClick={() => removeSkill(skill)}
-                        style={{ marginLeft: 4 }}
-                      >
-                        <IconX size={12} />
-                      </ActionIcon>
-                    </Chip>
+                    </Badge>
                   ))}
                 </Group>
               )}

@@ -83,12 +83,18 @@ export const useApplications = () => {
     applicationData: ApplicationFormData
   ): Promise<boolean> => {
     try {
+      // Ensure interview_data field is explicitly included even if undefined
+      const dataToSend = {
+        ...applicationData,
+        interview_data: applicationData.interview_data === undefined ? null : applicationData.interview_data
+      };
+      
       const response = await fetch(`${API_BASE_URL}/applications/${applicationId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(applicationData),
+        body: JSON.stringify(dataToSend),
       });
       
       const data = await response.json();

@@ -94,12 +94,18 @@ export const useJobs = () => {
     jobData: JobFormData
   ): Promise<boolean> => {
     try {
+      // Ensure requirements field is explicitly included even if undefined
+      const dataToSend = {
+        ...jobData,
+        requirements: jobData.requirements === undefined ? null : jobData.requirements
+      };
+      
       const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(jobData),
+        body: JSON.stringify(dataToSend),
       });
       
       const data = await response.json();
