@@ -144,6 +144,9 @@ def update_job(job_id):
                 'error': 'Job not found'
             }), 404
         
+        # Remove fields that come from JOIN but aren't in the jobs table
+        data = {k: v for k, v in data.items() if k != 'company_name'}
+        
         # Update the job
         success = jobs_repository.update(job_id, data)
         

@@ -1,5 +1,6 @@
 """Flask application factory."""
 from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS
 from app.config import get_config
 from app.routes import companies_bp, jobs_bp, applications_bp, contacts_bp
 import logging
@@ -28,6 +29,7 @@ def create_app(config_name=None):
     app = Flask(__name__, 
                 static_folder=static_folder,
                 static_url_path='')
+    CORS(app)
     
     # Load configuration
     config_class = get_config()

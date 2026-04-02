@@ -1,0 +1,8 @@
+.nav-link {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.nav-link-active {
+  /* Active state is handled by Mantine Button variant */
+}

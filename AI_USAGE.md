@@ -14,6 +14,12 @@ Act mode (Sonnet 4.5) created the top level default config/.env example files.
 
 ## Project Improvements
 
-Improvement: With the backend now serving requests, I need to have the frontend app be able to be served by flask after it is built by vite
+Improvement: With the backend now serving requests, I need to have the frontend app be able to be served by flask after it is built by vite (For purposes of this project, the dist folder is built locally and committed with the repo rather than being served as an artifact via something like Artifactory)
 Plan Mode (Sonnet 4.5): Update the flask app so that it serves the built react app from the frontend dist folder at the root / endpoint of the flask app, keeping in mind react router is in use, and SPA specific considerations
 Act mode (Sonnet 4.5) Updated the base flask app configuration so it would serve from job-tracker-frontend/dist on the / route, and be able to handle SPA specific routing 
+
+## Frontend Generics
+
+All page components were generated with a common plan mode prompt, utilizing react hooks to keep the view clean, and additional components as nessecary for elements like the add/edit modals
+Plan Mode (Sonnet 4.5): Implement the view, create modal, edit modal, and delete confirmation modal for <page type> on the <page type> page. create a hook to use for keeping the api logic out of the view, utilizing components as needed
+Act updated the placeholder pages, and created components as required, in addition to the hooks to use for the API calls to the flask app

@@ -1,5 +1,5 @@
 """Repository for applications table operations."""
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from app.db.base_repository import BaseRepository
 from app.db.connector import db_connector
 from mysql.connector import Error
@@ -17,6 +17,66 @@ class ApplicationsRepository(BaseRepository):
             primary_key='application_id',
             json_fields=['interview_data']  # JSON field for interview information
         )
+    
+    def get_all(self, limit: Optional[int] = None, offset: int = 0) -> List[Dict[str, Any]]:
+        """
+        Get all applications with job and company names.
+        
+        Args:
+            limit: Maximum number of records to return
+            offset: Number of records to skip
+            
+        Returns:
+            List of all applications with job and company information
+        """
+        try:
+            query = """
+                SELECT a.*, j.job_title, c.company_name
+                FROM applications a
+                LEFT JOIN jobs j ON a.job_id = j.job_id
+                LEFT JOIN companies c ON j.company_id = c.company_id
+                ORDER BY a.application_date DESC
+            """
+            
+            if limit:
+                query += f" LIMIT {limit} OFFSET {offset}"
+            
+            with db_connector.get_cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+                return [self._deserialize_json_fields(row) for row in results]
+                
+        except Error as e:
+            logger.error(f"Error getting all applications: {e}")
+            raise
+    
+    def get_by_id(self, record_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get a single application by ID with job and company names.
+        
+        Args:
+            record_id: The application's ID
+            
+        Returns:
+            Application record if found, None otherwise
+        """
+        try:
+            query = """
+                SELECT a.*, j.job_title, c.company_name
+                FROM applications a
+                LEFT JOIN jobs j ON a.job_id = j.job_id
+                LEFT JOIN companies c ON j.company_id = c.company_id
+                WHERE a.application_id = %s
+            """
+            
+            with db_connector.get_cursor() as cursor:
+                cursor.execute(query, (record_id,))
+                result = cursor.fetchone()
+                return self._deserialize_json_fields(result) if result else None
+                
+        except Error as e:
+            logger.error(f"Error getting application by ID: {e}")
+            raise
     
     def get_by_job(self, job_id: int) -> List[Dict[str, Any]]:
         """

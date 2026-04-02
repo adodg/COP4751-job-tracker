@@ -18,6 +18,64 @@ class JobsRepository(BaseRepository):
             json_fields=['requirements']  # JSON field for job requirements
         )
     
+    def get_all(self, limit: Optional[int] = None, offset: int = 0) -> List[Dict[str, Any]]:
+        """
+        Get all jobs with company names.
+        
+        Args:
+            limit: Maximum number of records to return
+            offset: Number of records to skip
+            
+        Returns:
+            List of all jobs with company information
+        """
+        try:
+            query = """
+                SELECT j.*, c.company_name 
+                FROM jobs j
+                LEFT JOIN companies c ON j.company_id = c.company_id
+                ORDER BY j.job_id DESC
+            """
+            
+            if limit:
+                query += f" LIMIT {limit} OFFSET {offset}"
+            
+            with db_connector.get_cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
+                return [self._deserialize_json_fields(row) for row in results]
+                
+        except Error as e:
+            logger.error(f"Error getting all jobs: {e}")
+            raise
+    
+    def get_by_id(self, record_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get a single job by ID with company name.
+        
+        Args:
+            record_id: The job's ID
+            
+        Returns:
+            Job record if found, None otherwise
+        """
+        try:
+            query = """
+                SELECT j.*, c.company_name 
+                FROM jobs j
+                LEFT JOIN companies c ON j.company_id = c.company_id
+                WHERE j.job_id = %s
+            """
+            
+            with db_connector.get_cursor() as cursor:
+                cursor.execute(query, (record_id,))
+                result = cursor.fetchone()
+                return self._deserialize_json_fields(result) if result else None
+                
+        except Error as e:
+            logger.error(f"Error getting job by ID: {e}")
+            raise
+    
     def get_by_company(self, company_id: int) -> List[Dict[str, Any]]:
         """
         Get all jobs for a specific company.

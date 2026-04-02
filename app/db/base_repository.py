@@ -156,7 +156,8 @@ class BaseRepository:
             
             with db_connector.get_cursor() as cursor:
                 cursor.execute(query, values)
-                return cursor.rowcount > 0
+                # Return True even if no rows changed (update with same values is still successful)
+                return True
                 
         except Error as e:
             logger.error(f"Error updating record in {self.table_name}: {e}")
